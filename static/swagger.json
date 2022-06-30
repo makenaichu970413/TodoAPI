@@ -1,0 +1,258 @@
+{
+	"openapi": "3.0.0",
+	"info": {
+		"description": "Todo List API",
+		"version": "1.0.0",
+		"title": "Todo List Flask API",
+		"license": {
+			"name": "MIT",
+			"url": "https://opensource.org/licenses/MIT"
+		}
+	},
+	"tags": [
+		{
+			"name": "Products API",
+			"description": "Test API"
+		}
+	],
+	"servers": [
+		{
+			"url": "/"
+		}
+	],
+	"components": {
+		"schemas": {
+			"todo_list": {
+				"type": "object",
+				"properties": {
+					"userID": {
+						"type": "string"
+					}
+				}
+			},
+			"id": {
+				"type": "string",
+				"properties": {
+					"id": {
+						"type": "string"
+					}
+				}
+			},
+			"update": {
+				"type": "object",
+				"properties": {
+					"title": {
+						"type": "string"
+					},
+					"tags": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					},
+					"completed": {
+						"type": "boolean"
+					}
+				}
+			},
+			"add": {
+				"type": "object",
+				"properties": {
+					"userID": {
+						"type": "string"
+					},
+					"title": {
+						"type": "string"
+					},
+					"tags": {
+						"type": "array",
+						"items": {
+							"type": "string"
+						}
+					}
+				}
+			}
+		}
+	},
+	"paths": {
+		"/todolist": {
+			"post": {
+				"tags": [
+					"Retrieve Todo List"
+				],
+				"summary": "Get All Todos",
+				"requestBody": {
+					"description": "Get All Todos",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/todo_list"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/components/schemas/todo_list"
+						}
+					},
+					"404": {
+						"description": "NOT FOUND",
+						"schema": {
+							"$ref": "#/components/schemas/todo_list"
+						}
+					}
+				}
+			}
+		},
+		"/todolist/{id}": {
+			"get": {
+				"tags": [
+					"Get A Specific Todo"
+				],
+				"summary": "Get Todo",
+				"parameters": [
+					{
+						"name": "id",
+						"in": "path",
+						"description": "todo id to get",
+						"required": true,
+						"type": "string",
+						"schema": {
+							"$ref": "#/components/schemas/id"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/components/schemas/id"
+						}
+					},
+					"404": {
+						"description": "NOT FOUND",
+						"schema": {
+							"$ref": "#/components/schemas/id"
+						}
+					}
+				}
+			}
+		},
+		"/todolist/add": {
+			"post": {
+				"tags": [
+					"Add Todo"
+				],
+				"summary": "Add Todo",
+				"requestBody": {
+					"description": "Add Todo",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/add"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/components/schemas/add"
+						}
+					},
+					"404": {
+						"description": "NOT FOUND",
+						"schema": {
+							"$ref": "#/components/schemas/add"
+						}
+					}
+				}
+			}
+		},
+		"/todolist/update/{id}": {
+			"put": {
+				"tags": [
+					"Update Todo"
+				],
+				"parameters": [
+					{
+						"name": "id",
+						"in": "path",
+						"description": "Todo ID to Update",
+						"required": true,
+						"type": "string",
+						"schema": {
+							"$ref": "#/components/schemas/id"
+						}
+					}
+				],
+				"summary": "Update Todo",
+				"requestBody": {
+					"description": "Update Existing todo On Database",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/update"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/components/schemas/update"
+						}
+					},
+					"404": {
+						"description": "NOT FOUND",
+						"schema": {
+							"$ref": "#/components/schemas/update"
+						}
+					}
+				}
+			}
+		},
+		"/todolist/remove/{id}": {
+			"delete": {
+				"tags": [
+					"Delete Todo"
+				],
+				"parameters": [
+					{
+						"name": "id",
+						"in": "path",
+						"description": "Product ID to Delete",
+						"required": true,
+						"type": "string",
+						"schema": {
+							"$ref": "#/components/schemas/id"
+						}
+					}
+				],
+				"summary": "Delete Todo",
+				"responses": {
+					"200": {
+						"description": "OK",
+						"schema": {
+							"$ref": "#/components/schemas/id"
+						}
+					},
+					"404": {
+						"description": "NOT FOUND",
+						"schema": {
+							"$ref": "#/components/schemas/id"
+						}
+					}
+				}
+			}
+		}
+	}
+}
