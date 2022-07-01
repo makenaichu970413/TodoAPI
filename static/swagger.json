@@ -1,9 +1,9 @@
 {
 	"openapi": "3.0.0",
 	"info": {
-		"description": "Todo List API",
+		"title": "Cognixus Todo List API",
+		"description": "Todo List REST API",
 		"version": "1.0.0",
-		"title": "Todo List Flask API",
 		"license": {
 			"name": "MIT",
 			"url": "https://opensource.org/licenses/MIT"
@@ -11,8 +11,8 @@
 	},
 	"tags": [
 		{
-			"name": "Products API",
-			"description": "Test API"
+			"name": "Todo API",
+			"description": "REST API"
 		}
 	],
 	"servers": [
@@ -22,20 +22,28 @@
 	],
 	"components": {
 		"schemas": {
-			"todo_list": {
-				"type": "object",
-				"properties": {
-					"userID": {
-						"type": "string"
-					}
-				}
-			},
+			"token": {"type":  "string"},
 			"id": {
 				"type": "string",
 				"properties": {
 					"id": {
 						"type": "string"
 					}
+				}
+			},
+			"signup": {
+				"type": "object",
+				"properties": {
+					"email": {"type":  "string"},
+					"password": {"type":  "string"},
+					"confirm_password": {"type":  "string"}
+				}
+			},
+			"login": {
+				"type": "object",
+				"properties": {
+					"email": {"type":  "string"},
+					"password": {"type":  "string"}
 				}
 			},
 			"update": {
@@ -58,9 +66,6 @@
 			"add": {
 				"type": "object",
 				"properties": {
-					"userID": {
-						"type": "string"
-					},
 					"title": {
 						"type": "string"
 					},
@@ -71,38 +76,195 @@
 						}
 					}
 				}
+			},
+			"error": {
+				"type": "object",
+				"properties": {
+					"Status": {"type":  "integer"},
+					"Error": {"type":  "string"}
+				}
+			},
+			"authRes": {
+				"type": "object",
+				"properties": {
+					"Status": {"type":  "integer"},
+					"Message": {"type":  "string"},
+					"Auth": {
+						"type": "object",
+						"properties": {
+							"token": {"type":  "string"}
+						}
+					}
+				}
+			},
+			"todoListRes": {
+				"type": "object",
+				"properties": {
+					"Status": {"type":  "integer"},
+					"Message": {"type":  "string"},
+					"data": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								 "_id": {"type":  "string"},
+								 "completed": {"type":  "boolean"},
+            					 "date": {"type":  "string"},
+								 "tags": {"type":  "array", "items": {"type":  "string"}},
+            				     "title": {"type":  "string"},
+            					 "userID": {"type":  "string"}
+							}
+						}
+					}
+				}
+			},
+			"todoRes": {
+				"type": "object",
+				"properties": {
+					"Status": {"type":  "integer"},
+					"Message": {"type":  "string"},
+					"data": {
+						"type": "object",
+						"properties": {
+							"_id": {"type":  "string"},
+							"completed": {"type":  "boolean"},
+							"date": {"type":  "string"},
+							"tags": {"type":  "array", "items": {"type":  "string"}},
+							"title": {"type":  "string"},
+							"userID": {"type":  "string"}
+						}
+					}
+				}
+			},
+			"deleteTodoRes": {
+				"type": "object",
+				"properties": {
+					"Status": {"type":  "integer"},
+					"Message": {"type":  "string"}
+				}
 			}
 		}
 	},
 	"paths": {
-		"/todolist": {
+		"/signup": {
 			"post": {
 				"tags": [
-					"Retrieve Todo List"
+					"Signup User Account"
 				],
-				"summary": "Get All Todos",
+				"summary": "Signup User Account",
 				"requestBody": {
-					"description": "Get All Todos",
+					"description": "Signup User Account",
 					"required": true,
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/todo_list"
+								"$ref": "#/components/schemas/signup"
 							}
 						}
 					}
 				},
 				"responses": {
 					"200": {
-						"description": "OK",
-						"schema": {
-							"$ref": "#/components/schemas/todo_list"
+						"description": "200 | SUCCESS",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/authRes"
+								}
+							}
 						}
 					},
-					"404": {
-						"description": "NOT FOUND",
+					"401": {
+						"description": "401 | FAILED",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/login": {
+			"post": {
+				"tags": [
+					"Login User Account"
+				],
+				"summary": "Login User Account",
+				"requestBody": {
+					"description": "Login User Account",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/login"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "200 | SUCCESS",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/authRes"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "401 | FAILED",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/todolist": {
+			"get": {
+				"tags": [
+					"Retrieve Todo List"
+				],
+				"summary": "Get All Todos",
+				"parameters": [
+					{
+						"name": "token",
+						"in": "path",
+						"description": "Logged In Token",
+						"required": true,
+						"type": "string",
 						"schema": {
-							"$ref": "#/components/schemas/todo_list"
+							"$ref": "#/components/schemas/token"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "200 | SUCCESS",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/todoListRes"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "401 | FAILED",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/error"
+								}
+							}
 						}
 					}
 				}
@@ -116,6 +278,16 @@
 				"summary": "Get Todo",
 				"parameters": [
 					{
+						"name": "token",
+						"in": "path",
+						"description": "Logged In Token",
+						"required": true,
+						"type": "string",
+						"schema": {
+							"$ref": "#/components/schemas/token"
+						}
+					},
+					{
 						"name": "id",
 						"in": "path",
 						"description": "todo id to get",
@@ -128,15 +300,23 @@
 				],
 				"responses": {
 					"200": {
-						"description": "OK",
-						"schema": {
-							"$ref": "#/components/schemas/id"
+						"description": "200 | SUCCESS",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/todoRes"
+								}
+							}
 						}
 					},
-					"404": {
-						"description": "NOT FOUND",
-						"schema": {
-							"$ref": "#/components/schemas/id"
+					"401": {
+						"description": "401 | FAILED",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/error"
+								}
+							}
 						}
 					}
 				}
@@ -148,6 +328,17 @@
 					"Add Todo"
 				],
 				"summary": "Add Todo",
+				"parameters": [
+					{
+						"name": "token",
+						"in": "path",
+						"description": "Logged In Token",
+						"required": true,
+						"type": "string",
+						"schema": {
+							"$ref": "#/components/schemas/token"
+						}
+					}],
 				"requestBody": {
 					"description": "Add Todo",
 					"required": true,
@@ -161,15 +352,23 @@
 				},
 				"responses": {
 					"200": {
-						"description": "OK",
-						"schema": {
-							"$ref": "#/components/schemas/add"
+						"description": "200 | SUCCESS",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/todoRes"
+								}
+							}
 						}
 					},
-					"404": {
-						"description": "NOT FOUND",
-						"schema": {
-							"$ref": "#/components/schemas/add"
+					"401": {
+						"description": "401 | FAILED",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/error"
+								}
+							}
 						}
 					}
 				}
@@ -181,6 +380,17 @@
 					"Update Todo"
 				],
 				"parameters": [
+						{
+						"name": "token",
+						"in": "path",
+						"description": "Logged In Token",
+						"required": true,
+						"type": "string",
+						"schema": {
+							"$ref": "#/components/schemas/token"
+						}
+					},
+
 					{
 						"name": "id",
 						"in": "path",
@@ -206,15 +416,23 @@
 				},
 				"responses": {
 					"200": {
-						"description": "OK",
-						"schema": {
-							"$ref": "#/components/schemas/update"
+						"description": "200 | SUCCESS",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/todoRes"
+								}
+							}
 						}
 					},
-					"404": {
-						"description": "NOT FOUND",
-						"schema": {
-							"$ref": "#/components/schemas/update"
+					"401": {
+						"description": "401 | FAILED",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/error"
+								}
+							}
 						}
 					}
 				}
@@ -227,9 +445,19 @@
 				],
 				"parameters": [
 					{
+						"name": "token",
+						"in": "path",
+						"description": "Logged In Token",
+						"required": true,
+						"type": "string",
+						"schema": {
+							"$ref": "#/components/schemas/token"
+						}
+					},
+					{
 						"name": "id",
 						"in": "path",
-						"description": "Product ID to Delete",
+						"description": "Todo ID to Delete",
 						"required": true,
 						"type": "string",
 						"schema": {
@@ -240,15 +468,23 @@
 				"summary": "Delete Todo",
 				"responses": {
 					"200": {
-						"description": "OK",
-						"schema": {
-							"$ref": "#/components/schemas/id"
+						"description": "200 | SUCCESS",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/deleteTodoRes"
+								}
+							}
 						}
 					},
-					"404": {
-						"description": "NOT FOUND",
-						"schema": {
-							"$ref": "#/components/schemas/id"
+					"401": {
+						"description": "401 | FAILED",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/error"
+								}
+							}
 						}
 					}
 				}
