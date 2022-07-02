@@ -2,8 +2,10 @@
 ###################################
 # Module
 ###################################
+import os
 from pymongo import MongoClient
 from decouple import config
+from dotenv import load_dotenv
 ###################################
 
 
@@ -13,10 +15,11 @@ from decouple import config
 class DB:
 
     def __init__(self):
-        username = config('USER')
-        password = config('PASSWORD')
-        clustername = config('CLUSTER_NAME')
-        database = config('DATABASE')
+        load_dotenv()
+        username = os.environ.get('USER')
+        password = os.environ.get('PASSWORD')
+        clustername = os.environ.get('CLUSTER_NAME')
+        database = os.environ.get('DATABASE')
         authURL = f"mongodb+srv://{username}:{password}@{clustername}.kzg50.mongodb.net/{database}?retryWrites=true&w=majority"
         # print(f"authURL: {authURL}")
         self.client = MongoClient(authURL)

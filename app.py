@@ -2,6 +2,7 @@
 ###################################
 # Module
 ###################################
+import os
 import json
 from flask import Flask, jsonify, request, session, make_response
 from flask_swagger_ui import get_swaggerui_blueprint
@@ -14,6 +15,7 @@ import jwt
 import re
 import bcrypt
 from decouple import config
+from dotenv import load_dotenv
 ###################################
 
 
@@ -21,7 +23,14 @@ from decouple import config
 # Flask Setup
 ###################################
 app = Flask(__name__)
-app.config["SECRET_KEY"] = config("SECRET_KEY")
+
+# try:
+#     SECRET_KEY = config("SECRET_KEY")
+# except Exception as error:
+#     SECRET_KEY = "xxx"
+#     # os.environ.get('DBHost')
+load_dotenv()
+app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY')
 ###################################
 
 
@@ -94,6 +103,12 @@ def verifyPassword(password, hashed):
     return match
 
 
+def date_conversion(str):
+    # str = "2022-07-02 05:31:52.603664"
+    date = datetime.strptime(str, '%Y-%m-%d %H:%M:%S.%f')
+    return date
+
+
 def token_required(func):
     @wraps(func)
     def decorated(*args, **kwargs):
@@ -104,7 +119,13 @@ def token_required(func):
 
         try:
             payload = jwt.decode(token, app.config["SECRET_KEY"], algorithms=['HS256'])
-            return func(payload, *args, **kwargs)
+            # print(f"payload: {payload}")
+            expiration = date_conversion(payload["expiration"])
+            if expiration > datetime.utcnow():
+                return func(payload, *args, **kwargs)
+            else:
+                response = {"Status": 200, "Message": f"Your token have expired!"}
+                return jsonify(response), 200
 
         except Exception as error:
             response = {"Status": 200, "Message": f"Invalid token! Error:{error}."}
@@ -116,6 +137,7 @@ def token_required(func):
 def authenticated(userID):
     hour = 12
     expired_period = hour * 60 * 60
+    expired_period = 30
     session["logged_in"] = True
     token = jwt.encode({
         "userID": userID,
@@ -342,15 +364,11 @@ def delete_todo(payload, id):
 if __name__ == "__main__":
     host = "0.0.0.0"
     port = 5000
+    # print(f"SECRET: {os.environ.get('SECRET_KEY')}")
     app.run(host=host, port=port, debug=True)
 
 ###################################
 
+# https://jwt.io/
 # https://cognixus-todo-api.herokuapp.com
 # docker build -t 970413/cognixus_todo_api .
-# https://jwt.io/
-
-# SECRET_KEY
-# 0ab129c9d3aa4fe0b10bd6657d9d76a2
-# cac1352325834414b70ca1a8ff86855d
-# dfed8d9ae49c41aea0f34b775a418b64
