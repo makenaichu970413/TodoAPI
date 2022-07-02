@@ -23,13 +23,10 @@ from dotenv import load_dotenv
 # Flask Setup
 ###################################
 app = Flask(__name__)
-
-# try:
-#     SECRET_KEY = config("SECRET_KEY")
-# except Exception as error:
-#     SECRET_KEY = "xxx"
-#     # os.environ.get('DBHost')
-load_dotenv()
+try:
+    load_dotenv()
+except Exception as error:
+    print(f"Production: {True}; WARNING: {error}")
 app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY')
 ###################################
 

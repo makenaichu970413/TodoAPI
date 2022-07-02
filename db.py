@@ -15,7 +15,10 @@ from dotenv import load_dotenv
 class DB:
 
     def __init__(self):
-        load_dotenv()
+        try:
+            load_dotenv()
+        except Exception as error:
+            print(f"Production: {True}; WARNING: {error}")
         username = os.environ.get('USER')
         password = os.environ.get('PASSWORD')
         clustername = os.environ.get('CLUSTER_NAME')
