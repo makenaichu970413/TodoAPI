@@ -13,6 +13,7 @@ from db import DB
 import jwt
 import re
 import bcrypt
+from decouple import config
 ###################################
 
 
@@ -20,7 +21,7 @@ import bcrypt
 # Flask Setup
 ###################################
 app = Flask(__name__)
-app.config["SECRET_KEY"] = "0ab129c9d3aa4fe0b10bd6657d9d76a2"
+app.config["SECRET_KEY"] = config("SECRET_KEY")
 ###################################
 
 
@@ -40,6 +41,7 @@ app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
 
 # API Documentation URL
 # https://cognixus-todo-api.herokuapp.com/swagger/
+
 ###################################
 
 

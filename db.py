@@ -3,6 +3,7 @@
 # Module
 ###################################
 from pymongo import MongoClient
+from decouple import config
 ###################################
 
 
@@ -12,13 +13,15 @@ from pymongo import MongoClient
 class DB:
 
     def __init__(self):
-        username = "makenaichu970413"
-        password = "Chu970413045109"
-        clustername = "cluster0"
-        database = "todo"
+        username = config('USER')
+        password = config('PASSWORD')
+        clustername = config('CLUSTER_NAME')
+        database = config('DATABASE')
         authURL = f"mongodb+srv://{username}:{password}@{clustername}.kzg50.mongodb.net/{database}?retryWrites=true&w=majority"
+        # print(f"authURL: {authURL}")
         self.client = MongoClient(authURL)
         self.db = self.client[database]
+
 
     def collection(self, type):
 

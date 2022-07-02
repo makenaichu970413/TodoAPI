@@ -22,7 +22,9 @@
 	],
 	"components": {
 		"schemas": {
-			"token": {"type":  "string"},
+			"token": {
+				"type": "string"
+			},
 			"id": {
 				"type": "string",
 				"properties": {
@@ -34,16 +36,26 @@
 			"signup": {
 				"type": "object",
 				"properties": {
-					"email": {"type":  "string"},
-					"password": {"type":  "string"},
-					"confirm_password": {"type":  "string"}
+					"email": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"confirm_password": {
+						"type": "string"
+					}
 				}
 			},
 			"login": {
 				"type": "object",
 				"properties": {
-					"email": {"type":  "string"},
-					"password": {"type":  "string"}
+					"email": {
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					}
 				}
 			},
 			"update": {
@@ -80,19 +92,29 @@
 			"error": {
 				"type": "object",
 				"properties": {
-					"Status": {"type":  "integer"},
-					"Error": {"type":  "string"}
+					"Status": {
+						"type": "integer"
+					},
+					"Error": {
+						"type": "string"
+					}
 				}
 			},
 			"authRes": {
 				"type": "object",
 				"properties": {
-					"Status": {"type":  "integer"},
-					"Message": {"type":  "string"},
+					"Status": {
+						"type": "integer"
+					},
+					"Message": {
+						"type": "string"
+					},
 					"Auth": {
 						"type": "object",
 						"properties": {
-							"token": {"type":  "string"}
+							"token": {
+								"type": "string"
+							}
 						}
 					}
 				}
@@ -100,19 +122,38 @@
 			"todoListRes": {
 				"type": "object",
 				"properties": {
-					"Status": {"type":  "integer"},
-					"Message": {"type":  "string"},
+					"Status": {
+						"type": "integer"
+					},
+					"Message": {
+						"type": "string"
+					},
 					"data": {
 						"type": "array",
 						"items": {
 							"type": "object",
 							"properties": {
-								 "_id": {"type":  "string"},
-								 "completed": {"type":  "boolean"},
-            					 "date": {"type":  "string"},
-								 "tags": {"type":  "array", "items": {"type":  "string"}},
-            				     "title": {"type":  "string"},
-            					 "userID": {"type":  "string"}
+								"_id": {
+									"type": "string"
+								},
+								"completed": {
+									"type": "boolean"
+								},
+								"date": {
+									"type": "string"
+								},
+								"tags": {
+									"type": "array",
+									"items": {
+										"type": "string"
+									}
+								},
+								"title": {
+									"type": "string"
+								},
+								"userID": {
+									"type": "string"
+								}
 							}
 						}
 					}
@@ -121,17 +162,36 @@
 			"todoRes": {
 				"type": "object",
 				"properties": {
-					"Status": {"type":  "integer"},
-					"Message": {"type":  "string"},
+					"Status": {
+						"type": "integer"
+					},
+					"Message": {
+						"type": "string"
+					},
 					"data": {
 						"type": "object",
 						"properties": {
-							"_id": {"type":  "string"},
-							"completed": {"type":  "boolean"},
-							"date": {"type":  "string"},
-							"tags": {"type":  "array", "items": {"type":  "string"}},
-							"title": {"type":  "string"},
-							"userID": {"type":  "string"}
+							"_id": {
+								"type": "string"
+							},
+							"completed": {
+								"type": "boolean"
+							},
+							"date": {
+								"type": "string"
+							},
+							"tags": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							},
+							"title": {
+								"type": "string"
+							},
+							"userID": {
+								"type": "string"
+							}
 						}
 					}
 				}
@@ -139,8 +199,12 @@
 			"deleteTodoRes": {
 				"type": "object",
 				"properties": {
-					"Status": {"type":  "integer"},
-					"Message": {"type":  "string"}
+					"Status": {
+						"type": "integer"
+					},
+					"Message": {
+						"type": "string"
+					}
 				}
 			}
 		}
@@ -338,7 +402,8 @@
 						"schema": {
 							"$ref": "#/components/schemas/token"
 						}
-					}],
+					}
+				],
 				"requestBody": {
 					"description": "Add Todo",
 					"required": true,
@@ -380,7 +445,7 @@
 					"Update Todo"
 				],
 				"parameters": [
-						{
+					{
 						"name": "token",
 						"in": "path",
 						"description": "Logged In Token",
@@ -390,7 +455,6 @@
 							"$ref": "#/components/schemas/token"
 						}
 					},
-
 					{
 						"name": "id",
 						"in": "path",
