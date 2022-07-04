@@ -7,14 +7,15 @@ URL: (https://cognixus-todo-api.herokuapp.com/). Feel free to use the API whenev
 ### 📖API Dodumentation
 https://cognixus-todo-api.herokuapp.com/swagger/ <br /> <br />
 
-### ⚙️Setup & Requirements
-***1. Create the NextJS App***
-- Create the NextJS App by run command: ```npx create-next-app makenaichu-assessment```
-- After installtion completed, open the "makenaichu-assessment" folder by Visual Studio Code. 
+### ⚙️Project Setup
+***1. Pull Docker Image***
+- Pull the Docker Image from Docker Hub by run command: ```docker pull 970413/cognixus_todo_api```<br />
 
-***4. Start NextJS Project***
-- Start the project in development mode by run command: ```npm run dev```
-- Open the started project by given URL, Eg: ```http://localhost:3000``` <br /> <br />
+***2. Setup Docker Container***
+- After Docker Image have pulled, build up the Docker Container by using given "docker-compose.yml" file and <br /> run command: ```docker-compose up --build -d```<br />
+
+***3. Docker Container Started***
+- The started container would run on the server with port "5002", Eg: the ```http://0.0.0.0:5002``` <br /> <br />
 
 
 ### 💻Assessment Additional Features
