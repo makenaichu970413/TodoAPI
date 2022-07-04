@@ -1,0 +1,5 @@
+**/*.yml
+/credential/*
+reference
+.env
+docker-compose.yml

@@ -30,7 +30,6 @@ class DB:
 
 
     def collection(self, type):
-
         return self.db[type]
 
 ###################################
