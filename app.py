@@ -17,6 +17,29 @@ import re
 import bcrypt
 from decouple import config
 from dotenv import load_dotenv
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from email.mime.application import MIMEApplication
+###################################
+
+###################################
+# Environment Variable
+###################################
+try:
+    load_dotenv()
+except Exception as error:
+    print(f"Production: {True}; WARNING: {error}")
+
+mail_domain = os.environ.get('MAIL_USERNAME').split('@')[-1].strip()
+MAIL_SERVER = f'smtp.{mail_domain}'
+MAIL_PORT = int(os.environ.get("MAIL_PORT")) # 405
+MAIL_USERNAME = os.environ.get('MAIL_USERNAME')
+MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')
+MAIL_USE_TLS = os.environ.get('MAIL_USE_TLS').strip().lower() == "true"
+MAIL_USE_SSL = os.environ.get('MAIL_USE_SSL').strip().lower() == "true"
+domain = os.environ.get('DOMAIN')
+
 ###################################
 
 
@@ -24,25 +47,19 @@ from dotenv import load_dotenv
 # Flask Setup
 ###################################
 app = Flask(__name__)
-try:
-    load_dotenv()
-except Exception as error:
-    print(f"Production: {True}; WARNING: {error}")
 
 # Send Mail
-mail_domain = os.environ.get('MAIL_USERNAME').split('@')[-1].strip()
-app.config["MAIL_SERVER"] = f'smtp.{mail_domain}'
-app.config["MAIL_PORT"] = int(os.environ.get("MAIL_PORT")) # 405
-app.config["MAIL_USERNAME"] = os.environ.get('MAIL_USERNAME')
-app.config["MAIL_PASSWORD"] = os.environ.get('MAIL_PASSWORD')
-app.config["MAIL_USE_TLS"] = False
-app.config["MAIL_USE_SSL"] = True
+app.config["MAIL_SERVER"] = MAIL_SERVER
+app.config["MAIL_PORT"] = MAIL_PORT
+app.config["MAIL_USERNAME"] = MAIL_USERNAME
+app.config["MAIL_PASSWORD"] = MAIL_PASSWORD
+app.config["MAIL_USE_TLS"] = MAIL_USE_TLS
+app.config["MAIL_USE_SSL"] = MAIL_USE_SSL
 mail = Mail(app)
 
 # Token Secret
 app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY')
 
-domain = os.environ.get('DOMAIN')
 ###################################
 
 
@@ -171,6 +188,23 @@ def send_mail(email, title, content):
     msg.body = content
     mail.send(msg)
 
+
+def send_mail2(email, title, content):
+    """ Message Content """
+    text_type = 'plain'  # or 'html'
+    msg = MIMEMultipart()
+    msg['Subject'] = title
+    msg['From'] = "noreply@demo.com"
+    msg['To'] = email
+    body = MIMEText(content, text_type, 'utf-8')
+    msg.attach(body)
+
+    """ SMTP Login && Sending Message  """
+    smtp = smtplib.SMTP(MAIL_SERVER, MAIL_PORT)
+    smtp.login(MAIL_USERNAME, MAIL_PASSWORD)
+    smtp.send_message(msg)
+    smtp.quit()
+
 ###################################
 
 
@@ -297,7 +331,7 @@ def verify_email(payload):
         email = data['email']
         title = "TodoAPI Email Verification"
         content = f'Hi please verified your email by clicking on the below link and thanks. \n\n Link: {link}'
-        send_mail(email, title, content)
+        send_mail2(email, title, content)
 
         response = {"Status": 200, "Message": f"The mail has sent to '{data['email']}'. Please check your mail."}
         return jsonify(response), 200
@@ -358,7 +392,7 @@ def forget_password():
         email = data['email']
         title = "TodoAPI Reset Password"
         content = f'Hi please reset your password by clicking on the below link and thanks. \n\n Link: {link}'
-        send_mail(email, title, content)
+        send_mail2(email, title, content)
 
         response = {"Status": 200, "Message": f"The mail has sent to '{data['email']}'. Please check your mail."}
         return jsonify(response), 200
