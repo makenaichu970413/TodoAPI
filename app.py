@@ -31,6 +31,7 @@ try:
 except Exception as error:
     print(f"Production: {True}; WARNING: {error}")
 
+SECRET_KEY = os.environ.get('SECRET_KEY')
 mail_domain = os.environ.get('MAIL_USERNAME').split('@')[-1].strip()
 MAIL_SERVER = f'smtp.{mail_domain}'
 MAIL_PORT = int(os.environ.get("MAIL_PORT")) # 405
@@ -58,7 +59,7 @@ app.config["MAIL_USE_SSL"] = MAIL_USE_SSL
 mail = Mail(app)
 
 # Token Secret
-app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY')
+app.config["SECRET_KEY"] = SECRET_KEY
 
 ###################################
 
@@ -549,7 +550,6 @@ def delete_todo(payload, id):
 if __name__ == "__main__":
     host = "0.0.0.0"
     port = 5000
-    # print(f"SECRET: {os.environ.get('SECRET_KEY')}")
     app.run(host=host, port=port, debug=True)
 
 ###################################
