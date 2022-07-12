@@ -58,6 +58,25 @@
 					}
 				}
 			},
+			"forgetPassword": {
+				"type": "object",
+				"properties": {
+					"email": {
+						"type": "string"
+					}
+				}
+			},
+			"resetPassword": {
+				"type": "object",
+				"properties": {
+					"password": {
+						"type": "string"
+					},
+					"confirm_password": {
+						"type": "string"
+					}
+				}
+			},
 			"update": {
 				"type": "object",
 				"properties": {
@@ -86,6 +105,17 @@
 						"items": {
 							"type": "string"
 						}
+					}
+				}
+			},
+			"success": {
+				"type":  "object",
+				"properties": {
+					"Status": {
+						"type": "integer"
+					},
+					"Message": {
+						"type": "string"
 					}
 				}
 			},
@@ -275,6 +305,184 @@
 							"application/json": {
 								"schema": {
 									"$ref": "#/components/schemas/authRes"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "401 | FAILED",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/verify_email": {
+			"get": {
+				"tags": [
+					"Verify User Email"
+				],
+				"summary": "Sending the Verify Email Link to User Email",
+				"parameters": [
+					{
+						"name": "token",
+						"in": "path",
+						"description": "Logged In Token",
+						"required": true,
+						"type": "string",
+						"schema": {
+							"$ref": "#/components/schemas/token"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "200 | SUCCESS",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/success"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "401 | FAILED",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/verified_email": {
+			"get": {
+				"tags": [
+					"Verified User Email"
+				],
+				"summary": "Verified User Email By Clicking Link",
+				"parameters": [
+					{
+						"name": "token",
+						"in": "path",
+						"description": "Logged In Token",
+						"required": true,
+						"type": "string",
+						"schema": {
+							"$ref": "#/components/schemas/token"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "200 | SUCCESS",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/success"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "401 | FAILED",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/forget_password": {
+			"post": {
+				"tags": [
+					"User Forget Password"
+				],
+				"summary": "Sending the Reset Password Link to User Email",
+				"requestBody": {
+					"description": "User Forget Password",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/forgetPassword"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "200 | SUCCESS",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/success"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "401 | FAILED",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/error"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/reset_password": {
+			"post": {
+				"tags": [
+					"User Reset Password"
+				],
+				"summary": "User Reset Password by Clicking Link",
+				"parameters": [
+					{
+						"name": "token",
+						"in": "path",
+						"description": "Logged In Token",
+						"required": true,
+						"type": "string",
+						"schema": {
+							"$ref": "#/components/schemas/token"
+						}
+					}
+				],
+				"requestBody": {
+					"description": "User Reset Password",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/resetPassword"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "200 | SUCCESS",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/success"
 								}
 							}
 						}

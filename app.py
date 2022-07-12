@@ -6,6 +6,7 @@ import os
 import json
 from flask import Flask, jsonify, request, session, make_response
 from flask_swagger_ui import get_swaggerui_blueprint
+from flask_mail import Mail, Message
 from datetime import datetime, timedelta
 import bson.json_util as json_util
 from functools import wraps
@@ -27,7 +28,21 @@ try:
     load_dotenv()
 except Exception as error:
     print(f"Production: {True}; WARNING: {error}")
+
+# Send Mail
+mail_domain = os.environ.get('MAIL_USERNAME').split('@')[-1].strip()
+app.config["MAIL_SERVER"] = f'smtp.{mail_domain}'
+app.config["MAIL_PORT"] = int(os.environ.get("MAIL_PORT")) # 405
+app.config["MAIL_USERNAME"] = os.environ.get('MAIL_USERNAME')
+app.config["MAIL_PASSWORD"] = os.environ.get('MAIL_PASSWORD')
+app.config["MAIL_USE_TLS"] = True
+app.config["MAIL_USE_SSL"] = False
+mail = Mail(app)
+
+# Token Secret
 app.config["SECRET_KEY"] = os.environ.get('SECRET_KEY')
+
+domain = os.environ.get('DOMAIN')
 ###################################
 
 
@@ -131,18 +146,30 @@ def token_required(func):
     return decorated
 
 
-def authenticated(userID):
-    hour = 12
-    expired_period = hour * 60 * 60
-    expired_period = 30
-    session["logged_in"] = True
+def JWT(userID, expired):
     token = jwt.encode({
         "userID": userID,
-        "expiration": str(datetime.utcnow() + timedelta(seconds=expired_period))
+        "expiration": str(datetime.utcnow() + timedelta(seconds=expired))
     }, app.config["SECRET_KEY"])
     # token = token.decode("utf-8")
     data = {"token": token}
     return data
+
+
+def authenticated(userID):
+    hour = 12
+    expired_period = hour * 60 * 60
+    # expired_period = 30
+    session["logged_in"] = True
+    data = JWT(userID, expired_period)
+    return data
+
+
+def send_mail(email, title, content):
+    sender = "noreply@demo.com"
+    msg = Message(title, sender=sender, recipients=[email])
+    msg.body = content
+    mail.send(msg)
 
 ###################################
 
@@ -163,7 +190,7 @@ def home():
 
     return jsonify(response), status
 
-
+# User Authentication
 @app.route('/signup', methods=["POST"])
 def signup():
     try:
@@ -196,7 +223,7 @@ def signup():
             return jsonify(response), 200
 
         hashed = hashPassword(password)
-        data = {"email": email, "password": hashed}
+        data = {"email": email, "password": hashed, "verified": False}
         result = users.insert_one(data)
         userID = str(ObjectId(result.inserted_id))
         auth = authenticated(userID)
@@ -245,8 +272,135 @@ def login():
     except Exception as error:
         status = 401
         response = {"Status": status, "Error": f"{error}"}
+        return jsonify(response), status
+
+
+@app.route('/verify_email', methods=["GET"])
+@token_required
+def verify_email(payload):
+    try:
+        userID = payload["userID"]
+        where = {'_id': ObjectId(userID)}
+        user = users.find_one(where)
+        data = dumpObjectID(user)
+
+        if data["verified"]:
+            response = {"Status": 200, "Message": f"The email has '{data['email']}' has verified."}
+            return jsonify(response), 200
+
+        hour = 12
+        expired_period = hour * 60 * 60
+        # expired_period = 30
+        jwt = JWT(userID, expired_period)
+        link = f"http://{domain}/verified_email?token={jwt['token']}"
+
+        email = data['email']
+        title = "TodoAPI Email Verification"
+        content = f'Hi please verified your email by clicking on the below link and thanks. \n\n Link: {link}'
+        send_mail(email, title, content)
+
+        response = {"Status": 200, "Message": f"The mail has sent to '{data['email']}'. Please check your mail."}
+        return jsonify(response), 200
+
+    except Exception as error:
+        status = 401
+        response = {"Status": status, "Error": f"{error}"}
+        return jsonify(response), status
+
+
+@app.route('/verified_email', methods=["GET"])
+@token_required
+def verified_email(payload):
+    try:
+        userID = payload["userID"]
+        where = {'_id': ObjectId(userID)}
+        set = {"$set": {'verified': True}}
+        result = users.update_one(where, set)
+        status = 200
+        response = {"Status": status, "Message": "The user email was verified!"}
+
+    except Exception as error:
+        status = 401
+        response = {"Status": status, "Error": f"{error}"}
 
     return jsonify(response), status
+
+
+@app.route('/forget_password', methods=["POST"])
+def forget_password():
+    try:
+        req = request.json
+        email = req["email"].strip()
+
+        if not email:
+            response = {"Status": 200, "Message": "Please filled in the required value."}
+            return jsonify(response), 200
+
+        valid = checkEmail(email)
+        if not valid:
+            response = {"Status": 200, "Message": "Your email format was invalid."}
+            return jsonify(response), 200
+
+        where = {"email": email}
+        existingUser = users.find_one(where)
+        data = dumpObjectID(existingUser)
+        if not data:
+            response = {"Status": 200, "Message": "The email was not sign-up yet."}
+            return jsonify(response), 200
+
+        userID = data["_id"]
+        hour = 12
+        expired_period = hour * 60 * 60
+        # expired_period = 30
+        jwt = JWT(userID, expired_period)
+        link = f"http://{domain}/reset_password?token={jwt['token']}"
+
+        email = data['email']
+        title = "TodoAPI Reset Password"
+        content = f'Hi please reset your password by clicking on the below link and thanks. \n\n Link: {link}'
+        send_mail(email, title, content)
+
+        response = {"Status": 200, "Message": f"The mail has sent to '{data['email']}'. Please check your mail."}
+        return jsonify(response), 200
+
+    except Exception as error:
+        status = 401
+        response = {"Status": status, "Error": f"{error}"}
+        return jsonify(response), status
+
+
+@app.route('/reset_password', methods=["POST"])
+@token_required
+def reset_password(payload):
+
+    try:
+        req = request.json
+        password = req["password"].strip()
+        repassword = req["confirm_password"].strip()
+
+        if not password or not repassword:
+            response = {"Status": 200, "Message": "Please filled in all required value."}
+            return jsonify(response), 200
+
+        if password != repassword:
+            response = {"Status": 200, "Message": "Your password and confirm password are unmatched."}
+            return jsonify(response), 200
+
+        if len(password) < 7:
+            response = {"Status": 200, "Message": "Your password should be at least 7 characters long."}
+            return jsonify(response), 200
+
+        userID = payload["userID"]
+        where = {'_id': ObjectId(userID)}
+        hashed = hashPassword(password)
+        set = {"$set": {'password': hashed}}
+        result = users.update_one(where, set)
+        response = {"Status": 200, "Message": "The new password has been updated."}
+        return jsonify(response), 200
+
+    except Exception as error:
+        response = {"Status": 401, "Error": f"{error}"}
+        return jsonify(response), 401
 
 
 # Get todo list
